@@ -4,12 +4,12 @@ import Tab from '@mui/material/Tab';
 import { Button, MenuItem, Modal, Stack, Tabs, TextField } from '@mui/material';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from "yup";
 
+import loadingGif from '../assets/loading.gif'
 // import { CustomTabPanel } from './customTabPanel';
 import logo from '../assets/gobrax.svg'
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '../server/api';
+import { schemaDriver } from './schemas';
+import { useCreateVehicle, useGetVehicles } from '../hooks/useVehicles';
 
 type DriverTypes = {
   name: string
@@ -17,24 +17,22 @@ type DriverTypes = {
   bond?: string
 }
 
-type VehicleTypes = {
-  label: string
-  value: string
-}[]
-
-const schemaDriver = yup.object({
-  name: yup.string().required('Nome obrigatório!'),
-  document: yup.string().required('Documento obrigatório!'),
-})
+type DataVehicleRowType = {
+  id: string
+  placa: string
+  marca: string
+}
 
 export function Header() {
   const [openModalDrivers, setOpenModalDrivers] = useState(false);
   const [value, setValue] = useState<number>(0);
-  const queryClient = useQueryClient()
 
   const { register, reset, handleSubmit, formState:{ errors }  } = useForm<DriverTypes>({
     resolver: yupResolver(schemaDriver)
   })
+
+  const { data: vehicles, isLoading } = useGetVehicles()
+  const mutation = useCreateVehicle()
 
   const handleOpen = () => setOpenModalDrivers(true);
   const handleClose = () => {
@@ -46,17 +44,7 @@ export function Header() {
     setValue(newValue);
   };
 
-  const mutation = useMutation({
-    mutationFn: (newDriver: DriverTypes) => {
-      return api.post('/drivers', newDriver)
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['drivers'] })
-    }
-  })
-
   const onSubmit: SubmitHandler<DriverTypes> = (data) => {
-    console.log(data)
     mutation.mutate(data)
     handleClose()
   }
@@ -73,47 +61,34 @@ export function Header() {
     p: 4,
   };
 
-  const vehicle: VehicleTypes = [
-    {
-      value: 'AFC-12345',
-      label: 'DAF',
-    },
-    {
-      value: 'EUR-12345',
-      label: 'TRANSILVA',
-    },
-    {
-      value: 'BTC-1234',
-      label: 'TRANSREAL',
-    },
-    {
-      value: 'JPY-1826',
-      label: 'JALOTO',
-    },
-  ];
+  if (isLoading) return (
+    <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+      <img src={loadingGif} alt="Carregando..." />
+    </Box>
+  )
 
   return (
     <>
-    <Box component="header" sx={{height: '82px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-      <Box>
+      <Box component="header" sx={{height: '82px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Box>
-          <Tabs value={value} onChange={handleChange} aria-label="Lista de motoristas e veículos">
-            <Tab label="Motoristas" sx={{textTransform: 'none', fontSize: '16px'}} value={0} />
-            <Tab label="Veículos" sx={{textTransform: 'none', fontSize: '16px'}} value={1} />
-          </Tabs>
+          <Box>
+            <Tabs value={value} onChange={handleChange} aria-label="Lista de motoristas e veículos">
+              <Tab label="Motoristas" sx={{textTransform: 'none', fontSize: '16px'}} value={0} />
+              <Tab label="Veículos" sx={{textTransform: 'none', fontSize: '16px'}} value={1} />
+            </Tabs>
+          </Box>
+          {/* <CustomTabPanel value={value} index={0}>Motoristas</CustomTabPanel>
+          <CustomTabPanel value={value} index={1}>Veículos</CustomTabPanel> */}
         </Box>
-        {/* <CustomTabPanel value={value} index={0}>Motoristas</CustomTabPanel>
-        <CustomTabPanel value={value} index={1}>Veículos</CustomTabPanel> */}
+        <img src={logo} alt="Logotipo do nome Gobrax" />
+        {value === 0 && (
+          <Button onClick={handleOpen} sx={{width: '210px', bgcolor: '#1323B0', textTransform: 'none', fontSize: '16px'}} variant="contained">Adicionar Motorista</Button>
+        )} 
+        {value === 1 && (
+          <Button sx={{width: '210px', bgcolor: '#1323B0', textTransform: 'none', fontSize: '16px'}} variant="contained">Adicionar Veículo</Button>
+        )}
       </Box>
-      <img src={logo} alt="Logotipo do nome Gobrax" />
-      {value === 0 && (
-        <Button onClick={handleOpen} sx={{width: '210px', bgcolor: '#1323B0', textTransform: 'none', fontSize: '16px'}} variant="contained">Adicionar Motorista</Button>
-      )} 
-      {value === 1 && (
-        <Button sx={{width: '210px', bgcolor: '#1323B0', textTransform: 'none', fontSize: '16px'}} variant="contained">Adicionar Veículo</Button>
-      )}
-    </Box>
-    <Modal
+      <Modal
         open={openModalDrivers}
         onClose={handleClose}
         aria-labelledby="Novo Motorista"
@@ -147,12 +122,12 @@ export function Header() {
                 shrink: true,
               }}
               {...register("bond")}
-              disabled={!vehicle.length}
-              helperText={!vehicle.length && 'Não há veículo cadastrado'}
+              disabled={!vehicles.length}
+              helperText={!vehicles.length && 'Não há veículo cadastrado'}
             >
-              {vehicle.map((option) => (
-                <MenuItem key={option.value} value={option.value}>
-                  {option.label}
+              {vehicles.map((item: DataVehicleRowType) => (
+                <MenuItem key={item.id} value={item.placa}>
+                  {item.marca} - {item.placa}
                 </MenuItem>
               ))}
             </TextField>
