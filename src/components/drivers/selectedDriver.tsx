@@ -5,7 +5,6 @@ import { DriverTypes } from "../../types";
 export function SelectedDriver() {
   const { selectionDriver } = useContextProvider()
   
-  console.log("🚀 ~ SelectedDriver ~ selectionDriver:", selectionDriver)
   return (
     <Box component="section" sx={{width: '100%', height: '100px', display: 'flex', justifyContent: 'flex-end'}}>
       {selectionDriver.map((item: DriverTypes) => (

@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { toast } from "sonner"
 import { api } from "../server/api"
 import { DriverTypes } from "../types"
 
@@ -18,6 +19,7 @@ export const useCreateDriver = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['drivers'] })
+      toast.success('Motorista criado com sucesso')
     }
   })
 }
@@ -31,6 +33,7 @@ export const useAlterDriver = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['drivers'] })
+      toast.success('Motorista alterado com sucesso')
     }
   })
 }
@@ -44,6 +47,7 @@ export const useDeleteDriver = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['drivers'] })
+      toast.success('Motorista deletado com sucesso')
     }
   })
 }

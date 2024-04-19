@@ -1,4 +1,3 @@
-// import { useState } from "react";
 import { Box, Button, MenuItem, Modal, Stack, TextField } from "@mui/material";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -40,15 +39,23 @@ export function ModalFormDriver({ editDriver, openModalDrivers, handleCloseModal
     handleCloseModal()
   };
 
-  const onSubmit: SubmitHandler<DriverTypes> = (data) => {
+  const handleCreateDriver = (data: DriverTypes) => {
+    mutationCreateDriver.mutate(data)
+  }
+
+  const handleAlterDriver = (data: DriverTypes) => {
     const newData = {
       ...data,
       id: editDriver?.row.id
     }
+    mutationAlter.mutate(newData)
+  }
+
+  const onSubmit: SubmitHandler<DriverTypes> = (data) => {    
     if (!editDriver) {
-      mutationCreateDriver.mutate(data)
+      handleCreateDriver(data)
     } else (
-      mutationAlter.mutate(newData)
+      handleAlterDriver(data)
     )
 
     handleClose()

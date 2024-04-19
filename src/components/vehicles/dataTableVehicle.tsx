@@ -67,10 +67,10 @@ export function DataTableVehicle() {
       align: 'right',
       renderCell: (params) => (
         <>
-          <Button variant='outlined' sx={{textTransform: 'none', mr: "5px"}} onClick={() => handleOpen(params)}>
+          <Button variant='outlined' sx={{textTransform: 'none', mr: "5px", fontSize: '0.75rem'}} onClick={() => handleOpen(params)}>
             Editar
           </Button>
-          <Button variant='outlined' sx={{textTransform: 'none', ml: "5px"}} onClick={() => handleOpenDelete(params)}>
+          <Button variant='outlined' sx={{textTransform: 'none', ml: "5px", fontSize: '0.75rem'}} onClick={() => handleOpenDelete(params)}>
             Excluir
           </Button>
         </>

@@ -1,4 +1,3 @@
-// import { useState } from "react";
 import { Box, Button, Modal, Stack, Typography } from "@mui/material";
 
 type ModalConfirmationProps = {

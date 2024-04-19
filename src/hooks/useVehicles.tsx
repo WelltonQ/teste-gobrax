@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { toast } from "sonner"
 import { api } from "../server/api"
 import { VehicleTypes } from "../types"
 
@@ -18,6 +19,7 @@ export const useCreateVehicle = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vehicles'] })
+      toast.success('Veículo criado com sucesso')
     }
   })
 }
@@ -31,6 +33,7 @@ export const useAlterVehicle = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vehicles'] })
+      toast.success('Veículo alterado com sucesso')
     }
   })
 }
@@ -44,6 +47,7 @@ export const useDeleteVehicle = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vehicles'] })
+      toast.success('Veículo excluído com sucesso')
     }
   })
 }

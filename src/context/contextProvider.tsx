@@ -24,6 +24,7 @@ export function ContextProvider({ children }: ContextProviderProps) {
 
   const handleTabs = (value: number) => {
     setTabValue(value)
+    setSelectionDriver([])
   }
 
   return (
