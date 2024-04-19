@@ -23,7 +23,7 @@ export function Header() {
     setOpenModalDrivers(false)
   };
 
-  const handleChange = (event: SyntheticEvent, newValue: number) => {
+  const handleChange = (_event: SyntheticEvent, newValue: number) => {
     handleTabs(newValue)
   };
 
