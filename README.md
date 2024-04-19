@@ -70,6 +70,7 @@ $ npm run server
 Para executar este projeto, você precisará criar um novo arquivo na raiz do projeto chamado `.env` e adicionar a seguinte variável de ambiente:
 
 ```bash
+
 VITE_REACT_API_URL='http://localhost:3000/'
 
 ```
