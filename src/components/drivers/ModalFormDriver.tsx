@@ -1,18 +1,17 @@
 // import { useState } from "react";
 import { Box, Button, MenuItem, Modal, Stack, TextField } from "@mui/material";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useForm } from "react-hook-form";
-import { DriverTypes } from "../context/driverProvider";
-import { schemaDriver } from "./schemas";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { schemaDriver } from "../schemas";
 import { DataDriverRowType } from "./dataTableDriver";
-import { useGetVehicles } from "../hooks/useVehicles";
-import { DataVehicleRowType } from "./dataTableVehicle";
+import { useGetVehicles } from "../../hooks/useVehicles";
+import { DriverTypes, VehicleTypes } from "../../types";
+import { useAlterDriver, useCreateDriver } from "../../hooks/useDrivers";
 
 type ModalFormProps = {
   editDriver?: DataDriverRowType | null
   openModalDrivers: boolean
   handleCloseModal: () => void
-  onSubmit: (data: DriverTypes) => void
 }
 
 const style = {
@@ -27,17 +26,33 @@ const style = {
   p: 4,
 };
 
-export function ModalFormDriver({ editDriver, openModalDrivers, handleCloseModal, onSubmit }: ModalFormProps) {
+export function ModalFormDriver({ editDriver, openModalDrivers, handleCloseModal }: ModalFormProps) {
   const { register, reset, handleSubmit, formState:{ errors }  } = useForm<DriverTypes>({
     resolver: yupResolver(schemaDriver)
   })
 
    const { data: vehicles } = useGetVehicles()
+   const mutationCreateDriver = useCreateDriver()
+   const mutationAlter = useAlterDriver()
 
    const handleClose = () => {
     reset()
     handleCloseModal()
   };
+
+  const onSubmit: SubmitHandler<DriverTypes> = (data) => {
+    const newData = {
+      ...data,
+      id: editDriver?.row.id
+    }
+    if (!editDriver) {
+      mutationCreateDriver.mutate(data)
+    } else (
+      mutationAlter.mutate(newData)
+    )
+
+    handleClose()
+  }
 
   return (
     <Modal
@@ -77,11 +92,11 @@ export function ModalFormDriver({ editDriver, openModalDrivers, handleCloseModal
             disabled={!vehicles?.length}
             helperText={!vehicles?.length && 'Não há veículo cadastrado'}
           >
-            {/* {vehicles?.map((item: DataVehicleRowType) => (
-              <MenuItem key={item.id} value={item.placa}>
-                {item.marca} - {item.placa}
+            {vehicles?.map((item: VehicleTypes) => (
+              <MenuItem key={item.id} value={item.plate}>
+                {item.mark} - {item.plate}
               </MenuItem>
-            ))} */}
+            ))}
           </TextField>
           <Button type='submit' variant='contained'>Salvar</Button>
         </Stack>

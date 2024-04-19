@@ -1,13 +1,13 @@
 import { DataGrid, GridColDef, GridRowSelectionModel } from '@mui/x-data-grid';
-import loadingGif from '../assets/loading.gif'
-import { Box, Button } from '@mui/material';
-import { DriverTypes } from '../context/driverProvider';
-import { useDriver } from '../context/driverProvider';
+import { Box, Button, Typography } from '@mui/material';
+import { useContextProvider } from '../../context/contextProvider';
 import { useState } from 'react';
-import { useAlterDriver, useDeleteDriver, useGetDrivers } from '../hooks/useDrivers';
-import { ModalConfirmation } from './modalConfirmation';
+import { useDeleteDriver, useGetDrivers } from '../../hooks/useDrivers';
+import { ModalConfirmation } from '../modalConfirmation';
 import { ModalFormDriver } from './ModalFormDriver';
-import { SubmitHandler } from 'react-hook-form';
+import { DriverTypes } from '../../types';
+import loadingGif from '../../assets/loading.gif'
+import noData from '../../assets/no-data.gif'
 
 export type DataDriverRowType = {
   row: DriverTypes
@@ -18,10 +18,9 @@ export function DataTableDriver() {
   const [openModalDeleteDrivers, setOpenModalDeleteDriver] = useState(false);
   const [editDriver, setEditDriver] = useState<DataDriverRowType | null>(null);
 
-  const { handleSelectDriver } = useDriver()
+  const { handleSelectDriver } = useContextProvider()
   const { data, isLoading } = useGetDrivers()
   const mutationDelete = useDeleteDriver()
-  const mutationAlter = useAlterDriver()
 
   const handleOpen = (values: DataDriverRowType) => {
     setEditDriver(values)
@@ -54,7 +53,7 @@ export function DataTableDriver() {
       field: 'bond', 
       headerName: 'Vínculo', 
       width: 200, 
-      valueGetter: (params: string) => (params !== "" ? 'Sim' : 'Não')
+      valueGetter: (params: string) => (params ? 'Sim' : 'Não')
     },
     { 
       field: 'edit', 
@@ -87,16 +86,13 @@ export function DataTableDriver() {
     );
     handleSelectDriver(selectedRows);
   };
-
-
-  const onSubmit: SubmitHandler<DriverTypes> = (data) => {
-    const newData = {
-      ...data,
-      id: editDriver?.row.id
-    }
-    mutationAlter.mutate(newData)
-    handleClose()
-  }
+  
+  if (!data.length && !isLoading) return (
+    <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: '100%', gap: 4 }}>
+      <Typography component="h2" sx={{fontSize: '20px'}}>Não há motoristas cadastrados</Typography>
+      <img src={noData} alt="Sem dados" />
+    </Box>
+  )
 
   return (
     <>
@@ -109,18 +105,18 @@ export function DataTableDriver() {
               paginationModel: { page: 0, pageSize: 5 },
             },
           }}
-          pageSizeOptions={[5, 10]}
+          pageSizeOptions={[5, 10, 15]}
           checkboxSelection
           disableMultipleRowSelection
           disableColumnMenu
+          hideFooterSelectedRowCount
           onRowSelectionModelChange={handleSelectionModelChange}
         />
       </div>
-      <ModalFormDriver 
+      <ModalFormDriver
         openModalDrivers={openModalDrivers}
         editDriver={editDriver}
         handleCloseModal={handleClose}
-        onSubmit={onSubmit}
       />
       <ModalConfirmation
         title={`Tem certeza que deseja excluir o motorista ${editDriver?.row.name}?`}

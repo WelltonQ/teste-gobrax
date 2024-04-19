@@ -1,13 +1,13 @@
 import { Container } from '@mui/material';
 import { Header } from './components/header';
-import { SelectedDriver } from './components/selectedDriver';
-import { DataTableDriver } from './components/dataTableDriver';
+import { SelectedDriver } from './components/drivers/selectedDriver';
+import { DataTableDriver } from './components/drivers/dataTableDriver';
 import { CustomTabPanel } from './components/customTabPanel';
-import { useDriver } from './context/driverProvider';
-import { DataTableVehicle } from './components/dataTableVehicle';
+import { useContextProvider } from './context/contextProvider';
+import { DataTableVehicle } from './components/vehicles/dataTableVehicle';
 
 export function App() {
-  const { tabValue } = useDriver()
+  const { tabValue } = useContextProvider()
 
   return (
     <Container maxWidth="lg">

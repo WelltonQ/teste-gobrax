@@ -2,35 +2,16 @@ import { useState, SyntheticEvent } from 'react';
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
 import { Button, Tabs } from '@mui/material';
-import { SubmitHandler } from 'react-hook-form';
 
-// import { CustomTabPanel } from './customTabPanel';
 import logo from '../assets/gobrax.svg'
-import { ModalFormDriver } from './ModalFormDriver';
-import { useCreateDriver } from '../hooks/useDrivers';
-import { VehicleTypes, useDriver } from '../context/driverProvider';
-import { ModalFormVehicle } from './ModalFormVehicle';
-import { useCreateVehicle } from '../hooks/useVehicles';
-
-type DriverTypes = {
-  name: string
-  document: string
-  bond?: string
-}
-
-// type DataVehicleRowType = {
-//   id: string
-//   placa: string
-//   marca: string
-// }
+import { ModalFormDriver } from './drivers/ModalFormDriver';
+import { useContextProvider } from '../context/contextProvider';
+import { ModalFormVehicle } from './vehicles/ModalFormVehicle';
 
 export function Header() {
   const [openModalDrivers, setOpenModalDrivers] = useState(false);
   const [openModalVehicles, setOpenModalVehicles] = useState(false);
-  const { handleTabs, tabValue } = useDriver()
-
-  const mutationCreateDriver = useCreateDriver()
-  const mutationCreateVehicle = useCreateVehicle()
+  const { handleTabs, tabValue } = useContextProvider()
 
   const handleOpenVehicle = () => setOpenModalVehicles(true);
   const handleCloseVehicle = () => {
@@ -45,16 +26,6 @@ export function Header() {
   const handleChange = (event: SyntheticEvent, newValue: number) => {
     handleTabs(newValue)
   };
-
-  const onSubmitDriver: SubmitHandler<DriverTypes> = (data) => {
-    mutationCreateDriver.mutate(data)
-    handleCloseDriver()
-  }
-
-  const onSubmitVehicle: SubmitHandler<VehicleTypes> = (data) => {
-    mutationCreateVehicle.mutate(data)
-    handleCloseVehicle()
-  }
 
   return (
     <>
@@ -78,13 +49,10 @@ export function Header() {
       <ModalFormDriver 
         openModalDrivers={openModalDrivers}
         handleCloseModal={handleCloseDriver}
-        onSubmit={onSubmitDriver}
       />
       <ModalFormVehicle
         openModalVehicles={openModalVehicles}
-        // editDriver={editDriver}
         handleCloseModal={handleCloseVehicle}
-        onSubmit={onSubmitVehicle}
       />
     </>
   )

@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { api } from "../server/api"
-import { DriverTypes } from "../context/driverProvider"
+import { DriverTypes } from "../types"
 
 export const useGetDrivers = () => {
   return useQuery({ queryKey: ['drivers'], queryFn: async () => {

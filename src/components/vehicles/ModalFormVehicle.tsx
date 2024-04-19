@@ -1,16 +1,17 @@
 // import { useState } from "react";
 import { Box, Button, Modal, Stack, TextField } from "@mui/material";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useForm } from "react-hook-form";
-import { VehicleTypes } from "../context/driverProvider";
-import { schemaVehicle } from "./schemas";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { schemaVehicle } from "../schemas";
 import { DataVehicleRowType } from "./dataTableVehicle";
+import { DriverTypes, VehicleTypes } from "../../types";
+import { useAlterVehicle, useCreateVehicle } from "../../hooks/useVehicles";
+import { useAlterDriver, useGetDrivers } from "../../hooks/useDrivers";
 
 type ModalFormProps = {
   editVehicle?: DataVehicleRowType | null
   openModalVehicles: boolean
   handleCloseModal: () => void
-  onSubmit: (data: VehicleTypes) => void
 }
 
 const style = {
@@ -25,15 +26,52 @@ const style = {
   p: 4,
 };
 
-export function ModalFormVehicle({ editVehicle, openModalVehicles, handleCloseModal, onSubmit }: ModalFormProps) {
+export function ModalFormVehicle({ editVehicle, openModalVehicles, handleCloseModal }: ModalFormProps) {
   const { register, reset, handleSubmit, formState:{ errors }  } = useForm<VehicleTypes>({
     resolver: yupResolver(schemaVehicle)
   })
 
-   const handleClose = () => {
+  const mutationCreateVehicle = useCreateVehicle()
+  const mutationAlter = useAlterVehicle()
+  const mutationAlterDriver = useAlterDriver()
+  const { data: drivers } = useGetDrivers()
+
+
+  const handleCreateVehicle = (data: VehicleTypes) => {
+    mutationCreateVehicle.mutate(data)
+  }
+
+  const handleAlterBondDriver = (data: VehicleTypes) => {
+    const filterDriver = drivers.filter((item: DriverTypes) => item.bond === editVehicle?.row.plate)
+    return filterDriver.map((obj: DriverTypes) => mutationAlterDriver.mutate({
+      ...obj,
+      bond: data.plate
+    }))
+  }
+  
+  const handleAlterVehicle = (data: VehicleTypes) => {
+    const newData = {
+      ...data,
+      id: editVehicle?.row.id
+    }
+    mutationAlter.mutate(newData)
+    handleAlterBondDriver(data)    
+  }
+
+  const handleClose = () => {
     reset()
     handleCloseModal()
   };
+
+  const onSubmit: SubmitHandler<VehicleTypes> = (data) => {
+    if (!editVehicle) {
+      handleCreateVehicle(data)
+    } else (
+      handleAlterVehicle(data)
+    )
+
+    handleClose()
+  }
 
   return (
     <Modal

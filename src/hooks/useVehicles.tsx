@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { api } from "../server/api"
-import { VehicleTypes } from "../context/driverProvider"
+import { VehicleTypes } from "../types"
 
 export const useGetVehicles = () => {
   return useQuery({ queryKey: ['vehicles'], queryFn: async () => {

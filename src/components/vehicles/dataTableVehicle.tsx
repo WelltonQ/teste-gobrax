@@ -1,12 +1,13 @@
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import loadingGif from '../assets/loading.gif'
-import { Box, Button } from '@mui/material';
-import { VehicleTypes } from '../context/driverProvider';
+import { Box, Button, Typography } from '@mui/material';
 import { useState } from 'react';
-import { useAlterVehicle, useDeleteVehicle, useGetVehicles } from '../hooks/useVehicles';
-import { ModalConfirmation } from './modalConfirmation';
-import { SubmitHandler } from 'react-hook-form';
+import { useDeleteVehicle, useGetVehicles } from '../../hooks/useVehicles';
+import { ModalConfirmation } from '../modalConfirmation';
 import { ModalFormVehicle } from './ModalFormVehicle';
+import { DriverTypes, VehicleTypes } from '../../types';
+import loadingGif from '../../assets/loading.gif'
+import noData from '../../assets/no-data.gif'
+import { useAlterDriver, useGetDrivers } from '../../hooks/useDrivers';
 
 export type DataVehicleRowType = {
   row: VehicleTypes
@@ -18,8 +19,9 @@ export function DataTableVehicle() {
   const [editVehicle, setEditVehicle] = useState<DataVehicleRowType | null>(null);
 
   const { data, isLoading } = useGetVehicles()
-  const mutationAlter = useAlterVehicle()
   const mutationDelete = useDeleteVehicle()
+  const mutationAlterDriver = useAlterDriver()
+  const { data: drivers } = useGetDrivers()
 
   const handleOpen = (values: DataVehicleRowType) => {
     setEditVehicle(values)
@@ -27,7 +29,7 @@ export function DataTableVehicle() {
   };
   
   const handleClose = () => {
-    setOpenModalVehicles(false)
+    setOpenModalVehicles(false) 
   };
 
   const handleOpenDelete = (values: DataVehicleRowType) => {
@@ -39,9 +41,17 @@ export function DataTableVehicle() {
     setOpenModalDeleteVehicle(false)
   };
 
+  const handleAlterBondDriver = () => {
+    const filterDriver = drivers.filter((item: DriverTypes) => item.bond === editVehicle?.row.plate)
+    return filterDriver.map((obj: DriverTypes) => mutationAlterDriver.mutate({
+      ...obj,
+      bond: ''
+    }))
+  }
+
   const handleDelete = (values: DataVehicleRowType | null) => {
-    console.log("🚀 ~ handleDelete ~ values:", values)
     mutationDelete.mutate(values?.row.id)
+    handleAlterBondDriver()
     handleCloseDelete()
   }
 
@@ -74,14 +84,12 @@ export function DataTableVehicle() {
     </Box>
   )
 
-  const onSubmit: SubmitHandler<VehicleTypes> = (data) => {
-    const newData = {
-      ...data,
-      id: editVehicle?.row.id
-    }
-    mutationAlter.mutate(newData)
-    handleClose()
-  }
+  if (!data.length && !isLoading) return (
+    <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: '100%', gap: 4 }}>
+      <Typography component="h2" sx={{fontSize: '20px'}}>Não há veículos cadastrados</Typography>
+      <img src={noData} alt="Sem dados" />
+    </Box>
+  )
 
   return (
     <>
@@ -94,15 +102,15 @@ export function DataTableVehicle() {
               paginationModel: { page: 0, pageSize: 5 },
             },
           }}
-          pageSizeOptions={[5, 10]}
+          pageSizeOptions={[5, 10, 15]}
           disableColumnMenu
+          hideFooterSelectedRowCount
         />
       </div>
       <ModalFormVehicle
         openModalVehicles={openModalVehicles}
         editVehicle={editVehicle}
         handleCloseModal={handleClose}
-        onSubmit={onSubmit}
       />
       <ModalConfirmation
         title={`Tem certeza que deseja excluir o veículo ${editVehicle?.row.mark} - ${editVehicle?.row.plate}?`}
