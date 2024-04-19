@@ -1,36 +1,27 @@
 import { DataGrid, GridColDef, GridRowSelectionModel } from '@mui/x-data-grid';
 import loadingGif from '../assets/loading.gif'
-import { Box, Button, MenuItem, Modal, Stack, TextField } from '@mui/material';
+import { Box, Button } from '@mui/material';
 import { DriverTypes } from '../context/driverProvider';
 import { useDriver } from '../context/driverProvider';
-import { SubmitHandler, useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { schemaDriver } from './schemas';
 import { useState } from 'react';
-import { useCreateDriver, useGetDrivers } from '../hooks/useDrivers';
-import { useGetVehicles } from '../hooks/useVehicles';
+import { useAlterDriver, useDeleteDriver, useGetDrivers } from '../hooks/useDrivers';
+import { ModalConfirmation } from './modalConfirmation';
+import { ModalFormDriver } from './ModalFormDriver';
+import { SubmitHandler } from 'react-hook-form';
 
-type DataDriverRowType = {
+export type DataDriverRowType = {
   row: DriverTypes
 }
 
-type DataVehicleRowType = {
-  id: string
-  placa: string
-  marca: string
-}
-
-export default function DataTable() {
+export function DataTableDriver() {
   const [openModalDrivers, setOpenModalDrivers] = useState(false);
+  const [openModalDeleteDrivers, setOpenModalDeleteDriver] = useState(false);
   const [editDriver, setEditDriver] = useState<DataDriverRowType | null>(null);
 
   const { handleSelectDriver } = useDriver()
   const { data, isLoading } = useGetDrivers()
-  const { data: vehicles } = useGetVehicles()
-
-  const { register, reset, handleSubmit, formState:{ errors }  } = useForm<DriverTypes>({
-    resolver: yupResolver(schemaDriver)
-  })
+  const mutationDelete = useDeleteDriver()
+  const mutationAlter = useAlterDriver()
 
   const handleOpen = (values: DataDriverRowType) => {
     setEditDriver(values)
@@ -38,9 +29,22 @@ export default function DataTable() {
   };
   
   const handleClose = () => {
-    reset()
     setOpenModalDrivers(false)
   };
+
+  const handleOpenDelete = (values: DataDriverRowType) => {
+    setEditDriver(values)
+    setOpenModalDeleteDriver(true)
+  };
+
+  const handleCloseDelete = () => {
+    setOpenModalDeleteDriver(false)
+  };
+
+  const handleDelete = (values: DataDriverRowType | null) => {
+    mutationDelete.mutate(values?.row.id)
+    handleCloseDelete()
+  }
 
   const columnsDrivers: GridColDef[] = [
     { field: 'id', headerName: 'ID', width: 70 },
@@ -59,14 +63,17 @@ export default function DataTable() {
       headerAlign: 'right',
       align: 'right',
       renderCell: (params) => (
-        <Button variant='outlined' sx={{textTransform: 'none'}} onClick={() => handleOpen(params)}>
-          Editar
-        </Button>
+        <>
+          <Button variant='outlined' sx={{textTransform: 'none', mr: "5px"}} onClick={() => handleOpen(params)}>
+            Editar
+          </Button>
+          <Button variant='outlined' sx={{textTransform: 'none', ml: "5px"}} onClick={() => handleOpenDelete(params)}>
+            Excluir
+          </Button>
+        </>
       )
     },
   ];
-
-  const mutation = useCreateDriver()
 
   if (isLoading) return (
     <Box sx={{ display: 'flex', justifyContent: 'center' }}>
@@ -81,25 +88,13 @@ export default function DataTable() {
     handleSelectDriver(selectedRows);
   };
 
-  const style = {
-    position: 'absolute' as const,
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: 400,
-    bgcolor: 'background.paper',
-    border: '2px solid #000',
-    boxShadow: 24,
-    p: 4,
-  };
 
-  
   const onSubmit: SubmitHandler<DriverTypes> = (data) => {
     const newData = {
       ...data,
       id: editDriver?.row.id
     }
-    mutation.mutate(newData)
+    mutationAlter.mutate(newData)
     handleClose()
   }
 
@@ -121,55 +116,18 @@ export default function DataTable() {
           onRowSelectionModelChange={handleSelectionModelChange}
         />
       </div>
-      <Modal
-        open={openModalDrivers}
-        onClose={handleClose}
-        aria-labelledby="Novo Motorista"
-        aria-describedby="Adicionar novo motorista"
-      >
-        <Box component="form" sx={style} onSubmit={handleSubmit(onSubmit)}>
-          <Stack gap={4}>
-            <TextField
-              label="Nome *"
-              InputLabelProps={{
-                shrink: true,
-              }}
-              {...register("name")}
-              defaultValue={editDriver?.row.name}
-              error={!!errors.name}
-              helperText={!!errors.name && errors.name.message}
-            />
-            <TextField
-              label="Documento *"
-              InputLabelProps={{
-                shrink: true,
-              }}
-              {...register("document")}
-              defaultValue={editDriver?.row.document}
-              error={!!errors.document}
-              helperText={!!errors.document && errors.document.message}
-            />
-            <TextField
-              defaultValue={editDriver?.row.bond}
-              select
-              label="Veículo"
-              InputLabelProps={{
-                shrink: true,
-              }}
-              {...register("bond")}
-              disabled={!vehicles.length}
-              helperText={!vehicles.length && 'Não há veículo cadastrado'}
-            >
-              {vehicles.map((item: DataVehicleRowType) => (
-                <MenuItem key={item.id} value={item.placa}>
-                  {item.marca} - {item.placa}
-                </MenuItem>
-              ))}
-            </TextField>
-            <Button type='submit' variant='contained'>Salvar</Button>
-          </Stack>
-        </Box>
-      </Modal>
+      <ModalFormDriver 
+        openModalDrivers={openModalDrivers}
+        editDriver={editDriver}
+        handleCloseModal={handleClose}
+        onSubmit={onSubmit}
+      />
+      <ModalConfirmation
+        title={`Tem certeza que deseja excluir o motorista ${editDriver?.row.name}?`}
+        openModal={openModalDeleteDrivers}
+        handleCloseModal={handleCloseDelete}
+        onSubmit={() => handleDelete(editDriver)}
+      />
     </>
   );
 }

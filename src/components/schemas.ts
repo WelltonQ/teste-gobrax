@@ -6,3 +6,9 @@ export const schemaDriver = yup.object({
   document: yup.string().required('Documento obrigatório!'),
   bond: yup.string(),
 })
+
+export const schemaVehicle = yup.object({
+  id: yup.string(),
+  mark: yup.string().required('Marca obrigatória!'),
+  plate: yup.string().required('Placa obrigatória!'),
+})
