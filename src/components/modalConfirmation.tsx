@@ -1,4 +1,4 @@
-import { Box, Button, Modal, Stack, Typography } from "@mui/material";
+import { Box, Button, Modal, Stack, Typography } from '@mui/material'
 
 type ModalConfirmationProps = {
   title: string
@@ -16,11 +16,15 @@ const style = {
   bgcolor: 'background.paper',
   border: '2px solid #000',
   boxShadow: 24,
-  p: 4,
-};
+  p: 4
+}
 
-export function ModalConfirmation({ title, openModal, handleCloseModal, onSubmit }: ModalConfirmationProps) {
-
+export function ModalConfirmation({
+  title,
+  openModal,
+  handleCloseModal,
+  onSubmit
+}: ModalConfirmationProps) {
   return (
     <Modal
       open={openModal}
@@ -32,8 +36,22 @@ export function ModalConfirmation({ title, openModal, handleCloseModal, onSubmit
         <Stack gap={4}>
           <Typography component="h2">{title}</Typography>
           <Stack direction="row" justifyContent="space-between" spacing={2}>
-            <Button type='button' variant='outlined' sx={{flex: 1}} onClick={handleCloseModal}>Não</Button>
-            <Button type='button' variant='contained' sx={{flex: 1}} onClick={onSubmit}>Sim</Button>
+            <Button
+              type="button"
+              variant="outlined"
+              sx={{ flex: 1 }}
+              onClick={handleCloseModal}
+            >
+              Não
+            </Button>
+            <Button
+              type="button"
+              variant="contained"
+              sx={{ flex: 1 }}
+              onClick={onSubmit}
+            >
+              Sim
+            </Button>
           </Stack>
         </Stack>
       </Box>

@@ -1,11 +1,11 @@
-import { Container } from '@mui/material';
+import { Container } from '@mui/material'
 
-import { Header } from './components/header';
-import { SelectedDriver } from './components/drivers/selectedDriver';
-import { DataTableDriver } from './components/drivers/dataTableDriver';
-import { CustomTabPanel } from './components/customTabPanel';
-import { useContextProvider } from './context/contextProvider';
-import { DataTableVehicle } from './components/vehicles/dataTableVehicle';
+import { CustomTabPanel } from './components/customTabPanel'
+import { DataTableDriver } from './components/drivers/dataTableDriver'
+import { SelectedDriver } from './components/drivers/selectedDriver'
+import { Header } from './components/header'
+import { DataTableVehicle } from './components/vehicles/dataTableVehicle'
+import { useContextProvider } from './context/contextProvider'
 
 export function App() {
   const { tabValue } = useContextProvider()
@@ -14,8 +14,12 @@ export function App() {
     <Container maxWidth="lg">
       <Header />
       <SelectedDriver />
-      <CustomTabPanel value={tabValue} index={0}><DataTableDriver /></CustomTabPanel>
-      <CustomTabPanel value={tabValue} index={1}><DataTableVehicle /></CustomTabPanel>
+      <CustomTabPanel value={tabValue} index={0}>
+        <DataTableDriver />
+      </CustomTabPanel>
+      <CustomTabPanel value={tabValue} index={1}>
+        <DataTableVehicle />
+      </CustomTabPanel>
     </Container>
   )
 }

@@ -1,11 +1,12 @@
-import { Box, Button, Modal, Stack, TextField } from "@mui/material";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { schemaVehicle } from "../schemas";
-import { DataVehicleRowType } from "./dataTableVehicle";
-import { DriverTypes, VehicleTypes } from "../../types";
-import { useAlterVehicle, useCreateVehicle } from "../../hooks/useVehicles";
-import { useAlterDriver, useGetDrivers } from "../../hooks/useDrivers";
+import { yupResolver } from '@hookform/resolvers/yup'
+import { Box, Button, Modal, Stack, TextField } from '@mui/material'
+import { SubmitHandler, useForm } from 'react-hook-form'
+
+import { useAlterDriver, useGetDrivers } from '../../hooks/useDrivers'
+import { useAlterVehicle, useCreateVehicle } from '../../hooks/useVehicles'
+import { DriverTypes, VehicleTypes } from '../../types'
+import { schemaVehicle } from '../schemas'
+import { DataVehicleRowType } from './dataTableVehicle'
 
 type ModalFormProps = {
   editVehicle?: DataVehicleRowType | null
@@ -22,11 +23,20 @@ const style = {
   bgcolor: 'background.paper',
   border: '2px solid #000',
   boxShadow: 24,
-  p: 4,
-};
+  p: 4
+}
 
-export function ModalFormVehicle({ editVehicle, openModalVehicles, handleCloseModal }: ModalFormProps) {
-  const { register, reset, handleSubmit, formState:{ errors }  } = useForm<VehicleTypes>({
+export function ModalFormVehicle({
+  editVehicle,
+  openModalVehicles,
+  handleCloseModal
+}: ModalFormProps) {
+  const {
+    register,
+    reset,
+    handleSubmit,
+    formState: { errors }
+  } = useForm<VehicleTypes>({
     resolver: yupResolver(schemaVehicle)
   })
 
@@ -35,56 +45,54 @@ export function ModalFormVehicle({ editVehicle, openModalVehicles, handleCloseMo
   const mutationAlterDriver = useAlterDriver()
   const { data: drivers } = useGetDrivers()
 
-
   const handleCreateVehicle = (data: VehicleTypes) => {
     mutationCreateVehicle.mutate(data)
   }
 
   const handleAlterBondDriver = (data: VehicleTypes) => {
-    const filterDriver = drivers.filter((item: DriverTypes) => item.bond === editVehicle?.row.plate)
-    return filterDriver.map((obj: DriverTypes) => mutationAlterDriver.mutate({
-      ...obj,
-      bond: data.plate
-    }))
+    const filterDriver = drivers.filter(
+      (item: DriverTypes) => item.bond === editVehicle?.row.plate
+    )
+    return filterDriver.map((obj: DriverTypes) =>
+      mutationAlterDriver.mutate({
+        ...obj,
+        bond: data.plate
+      })
+    )
   }
-  
+
   const handleAlterVehicle = (data: VehicleTypes) => {
     const newData = {
       ...data,
       id: editVehicle?.row.id
     }
     mutationAlter.mutate(newData)
-    handleAlterBondDriver(data)    
+    handleAlterBondDriver(data)
   }
 
   const handleClose = () => {
     reset()
     handleCloseModal()
-  };
+  }
 
   const onSubmit: SubmitHandler<VehicleTypes> = (data) => {
     if (!editVehicle) {
       handleCreateVehicle(data)
-    } else (
-      handleAlterVehicle(data)
-    )
+    } else handleAlterVehicle(data)
 
     handleClose()
   }
 
   return (
-    <Modal
-      open={openModalVehicles}
-      onClose={handleClose}
-    >
+    <Modal open={openModalVehicles} onClose={handleClose}>
       <Box component="form" sx={style} onSubmit={handleSubmit(onSubmit)}>
         <Stack gap={4}>
           <TextField
             label="Marca *"
             InputLabelProps={{
-              shrink: true,
+              shrink: true
             }}
-            {...register("mark")}
+            {...register('mark')}
             defaultValue={editVehicle?.row.mark}
             error={!!errors.mark}
             helperText={!!errors.mark && errors.mark.message}
@@ -92,14 +100,16 @@ export function ModalFormVehicle({ editVehicle, openModalVehicles, handleCloseMo
           <TextField
             label="Placa *"
             InputLabelProps={{
-              shrink: true,
+              shrink: true
             }}
-            {...register("plate")}
+            {...register('plate')}
             defaultValue={editVehicle?.row.plate}
             error={!!errors.plate}
             helperText={!!errors.plate && errors.plate.message}
           />
-          <Button type='submit' variant='contained'>Salvar</Button>
+          <Button type="submit" variant="contained">
+            Salvar
+          </Button>
         </Stack>
       </Box>
     </Modal>

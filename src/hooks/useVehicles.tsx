@@ -1,13 +1,17 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { toast } from "sonner"
-import { api } from "../server/api"
-import { VehicleTypes } from "../types"
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
+
+import { api } from '../server/api'
+import { VehicleTypes } from '../types'
 
 export const useGetVehicles = () => {
-  return useQuery({ queryKey: ['vehicles'], queryFn: async () => {
-    const { data } = await api.get('/vehicles')
-    return data
-  }})
+  return useQuery({
+    queryKey: ['vehicles'],
+    queryFn: async () => {
+      const { data } = await api.get('/vehicles')
+      return data
+    }
+  })
 }
 
 export const useCreateVehicle = () => {

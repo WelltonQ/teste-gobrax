@@ -1,13 +1,17 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import { toast } from "sonner"
-import { api } from "../server/api"
-import { DriverTypes } from "../types"
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
+
+import { api } from '../server/api'
+import { DriverTypes } from '../types'
 
 export const useGetDrivers = () => {
-  return useQuery({ queryKey: ['drivers'], queryFn: async () => {
-    const { data } = await api.get('/drivers')
-    return data
-  }})
+  return useQuery({
+    queryKey: ['drivers'],
+    queryFn: async () => {
+      const { data } = await api.get('/drivers')
+      return data
+    }
+  })
 }
 
 export const useCreateDriver = () => {

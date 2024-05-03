@@ -1,8 +1,9 @@
-import { ReactNode, createContext, useContext, useState } from 'react';
-import { DriverTypes } from '../types';
+import { ReactNode, createContext, useContext, useState } from 'react'
+
+import { DriverTypes } from '../types'
 
 type ContextProviderProps = {
-  children: ReactNode 
+  children: ReactNode
 }
 
 type ContextContextProps = {
@@ -12,11 +13,11 @@ type ContextContextProps = {
   tabValue: number
 }
 
-const ContextContext = createContext({} as ContextContextProps);
+const ContextContext = createContext({} as ContextContextProps)
 
 export function ContextProvider({ children }: ContextProviderProps) {
-  const [selectionDriver, setSelectionDriver] = useState<DriverTypes[]>([]);
-  const [tabValue, setTabValue] = useState<number>(0);
+  const [selectionDriver, setSelectionDriver] = useState<DriverTypes[]>([])
+  const [tabValue, setTabValue] = useState<number>(0)
 
   const handleSelectDriver = (values: DriverTypes[]) => {
     setSelectionDriver(values)
@@ -28,12 +29,14 @@ export function ContextProvider({ children }: ContextProviderProps) {
   }
 
   return (
-    <ContextContext.Provider value={{
-      selectionDriver, 
-      tabValue, 
-      handleSelectDriver, 
-      handleTabs
-    }}>
+    <ContextContext.Provider
+      value={{
+        selectionDriver,
+        tabValue,
+        handleSelectDriver,
+        handleTabs
+      }}
+    >
       {children}
     </ContextContext.Provider>
   )

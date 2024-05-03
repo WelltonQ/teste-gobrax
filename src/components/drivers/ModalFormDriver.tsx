@@ -1,11 +1,12 @@
-import { Box, Button, MenuItem, Modal, Stack, TextField } from "@mui/material";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { schemaDriver } from "../schemas";
-import { DataDriverRowType } from "./dataTableDriver";
-import { useGetVehicles } from "../../hooks/useVehicles";
-import { DriverTypes, VehicleTypes } from "../../types";
-import { useAlterDriver, useCreateDriver } from "../../hooks/useDrivers";
+import { yupResolver } from '@hookform/resolvers/yup'
+import { Box, Button, MenuItem, Modal, Stack, TextField } from '@mui/material'
+import { SubmitHandler, useForm } from 'react-hook-form'
+
+import { useAlterDriver, useCreateDriver } from '../../hooks/useDrivers'
+import { useGetVehicles } from '../../hooks/useVehicles'
+import { DriverTypes, VehicleTypes } from '../../types'
+import { schemaDriver } from '../schemas'
+import { DataDriverRowType } from './useDriversHook'
 
 type ModalFormProps = {
   editDriver?: DataDriverRowType | null
@@ -22,22 +23,31 @@ const style = {
   bgcolor: 'background.paper',
   border: '2px solid #000',
   boxShadow: 24,
-  p: 4,
-};
+  p: 4
+}
 
-export function ModalFormDriver({ editDriver, openModalDrivers, handleCloseModal }: ModalFormProps) {
-  const { register, reset, handleSubmit, formState:{ errors }  } = useForm<DriverTypes>({
+export function ModalFormDriver({
+  editDriver,
+  openModalDrivers,
+  handleCloseModal
+}: ModalFormProps) {
+  const {
+    register,
+    reset,
+    handleSubmit,
+    formState: { errors }
+  } = useForm<DriverTypes>({
     resolver: yupResolver(schemaDriver)
   })
 
-   const { data: vehicles } = useGetVehicles()
-   const mutationCreateDriver = useCreateDriver()
-   const mutationAlter = useAlterDriver()
+  const { data: vehicles } = useGetVehicles()
+  const mutationCreateDriver = useCreateDriver()
+  const mutationAlter = useAlterDriver()
 
-   const handleClose = () => {
+  const handleClose = () => {
     reset()
     handleCloseModal()
-  };
+  }
 
   const handleCreateDriver = (data: DriverTypes) => {
     mutationCreateDriver.mutate(data)
@@ -51,29 +61,32 @@ export function ModalFormDriver({ editDriver, openModalDrivers, handleCloseModal
     mutationAlter.mutate(newData)
   }
 
-  const onSubmit: SubmitHandler<DriverTypes> = (data) => {    
+  const onSubmit: SubmitHandler<DriverTypes> = (data) => {
     if (!editDriver) {
       handleCreateDriver(data)
-    } else (
-      handleAlterDriver(data)
-    )
+    } else handleAlterDriver(data)
 
     handleClose()
   }
 
+  // if (mutationAlter.isPending || mutationCreateDriver.isPending) {
+  //   return (
+  //     <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+  //      <p>Carregando....</p>
+  //     </Box>
+  //   )
+  // }
+
   return (
-    <Modal
-      open={openModalDrivers}
-      onClose={handleClose}
-    >
+    <Modal open={openModalDrivers} onClose={handleClose}>
       <Box component="form" sx={style} onSubmit={handleSubmit(onSubmit)}>
         <Stack gap={4}>
           <TextField
             label="Nome *"
             InputLabelProps={{
-              shrink: true,
+              shrink: true
             }}
-            {...register("name")}
+            {...register('name')}
             defaultValue={editDriver?.row.name}
             error={!!errors.name}
             helperText={!!errors.name && errors.name.message}
@@ -81,21 +94,21 @@ export function ModalFormDriver({ editDriver, openModalDrivers, handleCloseModal
           <TextField
             label="Documento *"
             InputLabelProps={{
-              shrink: true,
+              shrink: true
             }}
-            {...register("document")}
+            {...register('document')}
             defaultValue={editDriver?.row.document}
             error={!!errors.document}
             helperText={!!errors.document && errors.document.message}
           />
           <TextField
-            defaultValue={editDriver?.row.bond || ""}
+            defaultValue={editDriver?.row.bond || ''}
             select
             label="Veículo"
             InputLabelProps={{
-              shrink: true,
+              shrink: true
             }}
-            {...register("bond")}
+            {...register('bond')}
             disabled={!vehicles?.length}
             helperText={!vehicles?.length && 'Não há veículo cadastrado'}
           >
@@ -105,7 +118,9 @@ export function ModalFormDriver({ editDriver, openModalDrivers, handleCloseModal
               </MenuItem>
             ))}
           </TextField>
-          <Button type='submit' variant='contained'>Salvar</Button>
+          <Button type="submit" variant="contained">
+            Salvar
+          </Button>
         </Stack>
       </Box>
     </Modal>
