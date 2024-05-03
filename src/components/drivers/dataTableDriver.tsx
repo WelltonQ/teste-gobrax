@@ -1,28 +1,26 @@
 import { Box, Button, Typography } from '@mui/material'
-import { DataGrid, GridColDef, GridRowSelectionModel } from '@mui/x-data-grid'
+import { DataGrid, GridColDef } from '@mui/x-data-grid'
 
 import loadingGif from '../../assets/loading.gif'
 import noData from '../../assets/no-data.gif'
-import { useContextProvider } from '../../context/contextProvider'
-import { useGetDrivers } from '../../hooks/useDrivers'
-import { DriverTypes } from '../../types'
 import { ModalConfirmation } from '../modalConfirmation'
+import { useDriversHook } from './hooks/useDriversHook'
 import { ModalFormDriver } from './ModalFormDriver'
-import { UseDriversHook } from './useDriversHook'
 
 export function DataTableDriver() {
-  const { handleSelectDriver } = useContextProvider()
-  const { data, isLoading } = useGetDrivers()
   const {
     openModalDrivers,
     openModalDeleteDrivers,
     editDriver,
+    data,
+    isLoading,
     handleClose,
     handleCloseDelete,
     handleDelete,
     handleOpen,
-    handleOpenDelete
-  } = UseDriversHook()
+    handleOpenDelete,
+    handleSelectionModelChange
+  } = useDriversHook()
 
   const columnsDrivers: GridColDef[] = [
     { field: 'id', headerName: 'ID', width: 70 },
@@ -67,13 +65,6 @@ export function DataTableDriver() {
         <img src={loadingGif} alt="Carregando..." />
       </Box>
     )
-
-  const handleSelectionModelChange = (newSelection: GridRowSelectionModel) => {
-    const selectedRows = newSelection.map((id) =>
-      data.find((row: DriverTypes) => row.id === id)
-    )
-    handleSelectDriver(selectedRows)
-  }
 
   if (!data.length && !isLoading)
     return (

@@ -2,28 +2,18 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { Box, Button, MenuItem, Modal, Stack, TextField } from '@mui/material'
 import { SubmitHandler, useForm } from 'react-hook-form'
 
+import { style } from '../../styles/modal'
+
 import { useAlterDriver, useCreateDriver } from '../../hooks/useDrivers'
 import { useGetVehicles } from '../../hooks/useVehicles'
 import { DriverTypes, VehicleTypes } from '../../types'
 import { schemaDriver } from '../schemas'
-import { DataDriverRowType } from './useDriversHook'
+import { DataDriverRowType } from './hooks/useDriversHook'
 
 type ModalFormProps = {
   editDriver?: DataDriverRowType | null
   openModalDrivers: boolean
   handleCloseModal: () => void
-}
-
-const style = {
-  position: 'absolute' as const,
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: 400,
-  bgcolor: 'background.paper',
-  border: '2px solid #000',
-  boxShadow: 24,
-  p: 4
 }
 
 export function ModalFormDriver({
@@ -42,15 +32,15 @@ export function ModalFormDriver({
 
   const { data: vehicles } = useGetVehicles()
   const mutationCreateDriver = useCreateDriver()
-  const mutationAlter = useAlterDriver()
+  const { mutateAsync: mutationAlter } = useAlterDriver()
+
+  const handleCreateDriver = (data: DriverTypes) => {
+    mutationCreateDriver.mutate(data)
+  }
 
   const handleClose = () => {
     reset()
     handleCloseModal()
-  }
-
-  const handleCreateDriver = (data: DriverTypes) => {
-    mutationCreateDriver.mutate(data)
   }
 
   const handleAlterDriver = (data: DriverTypes) => {
@@ -58,7 +48,7 @@ export function ModalFormDriver({
       ...data,
       id: editDriver?.row.id
     }
-    mutationAlter.mutate(newData)
+    mutationAlter(newData)
   }
 
   const onSubmit: SubmitHandler<DriverTypes> = (data) => {
@@ -68,14 +58,6 @@ export function ModalFormDriver({
 
     handleClose()
   }
-
-  // if (mutationAlter.isPending || mutationCreateDriver.isPending) {
-  //   return (
-  //     <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-  //      <p>Carregando....</p>
-  //     </Box>
-  //   )
-  // }
 
   return (
     <Modal open={openModalDrivers} onClose={handleClose}>

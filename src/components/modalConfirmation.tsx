@@ -1,22 +1,12 @@
 import { Box, Button, Modal, Stack, Typography } from '@mui/material'
 
+import { style } from '../styles/modal'
+
 type ModalConfirmationProps = {
   title: string
   openModal: boolean
   handleCloseModal: () => void
   onSubmit: () => void
-}
-
-const style = {
-  position: 'absolute' as const,
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: 400,
-  bgcolor: 'background.paper',
-  border: '2px solid #000',
-  boxShadow: 24,
-  p: 4
 }
 
 export function ModalConfirmation({

@@ -1,16 +1,20 @@
+import { GridRowSelectionModel } from '@mui/x-data-grid'
 import { useState } from 'react'
 
-import { useDeleteDriver } from '../../hooks/useDrivers'
-import { DriverTypes } from '../../types'
+import { useContextProvider } from '../../../context/contextProvider'
+import { useDeleteDriver, useGetDrivers } from '../../../hooks/useDrivers'
+import { DriverTypes } from '../../../types'
 
 export type DataDriverRowType = {
   row: DriverTypes
 }
-export function UseDriversHook() {
+export function useDriversHook() {
   const [openModalDrivers, setOpenModalDrivers] = useState(false)
   const [openModalDeleteDrivers, setOpenModalDeleteDriver] = useState(false)
   const [editDriver, setEditDriver] = useState<DataDriverRowType | null>(null)
 
+  const { handleSelectDriver } = useContextProvider()
+  const { data, isLoading } = useGetDrivers()
   const mutationDelete = useDeleteDriver()
 
   const handleOpen = (values: DataDriverRowType) => {
@@ -36,14 +40,24 @@ export function UseDriversHook() {
     handleCloseDelete()
   }
 
+  const handleSelectionModelChange = (newSelection: GridRowSelectionModel) => {
+    const selectedRows = newSelection.map((id) =>
+      data.find((row: DriverTypes) => row.id === id)
+    )
+    handleSelectDriver(selectedRows)
+  }
+
   return {
     openModalDrivers,
     openModalDeleteDrivers,
     editDriver,
+    data,
+    isLoading,
     handleOpen,
     handleClose,
     handleOpenDelete,
     handleCloseDelete,
-    handleDelete
+    handleDelete,
+    handleSelectionModelChange
   }
 }

@@ -2,28 +2,18 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { Box, Button, Modal, Stack, TextField } from '@mui/material'
 import { SubmitHandler, useForm } from 'react-hook-form'
 
+import { style } from '../../styles/modal'
+
 import { useAlterDriver, useGetDrivers } from '../../hooks/useDrivers'
 import { useAlterVehicle, useCreateVehicle } from '../../hooks/useVehicles'
 import { DriverTypes, VehicleTypes } from '../../types'
 import { schemaVehicle } from '../schemas'
-import { DataVehicleRowType } from './dataTableVehicle'
+import { DataVehicleRowType } from './hooks/useVehiclesHook'
 
 type ModalFormProps = {
   editVehicle?: DataVehicleRowType | null
   openModalVehicles: boolean
   handleCloseModal: () => void
-}
-
-const style = {
-  position: 'absolute' as const,
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: 400,
-  bgcolor: 'background.paper',
-  border: '2px solid #000',
-  boxShadow: 24,
-  p: 4
 }
 
 export function ModalFormVehicle({
@@ -41,8 +31,8 @@ export function ModalFormVehicle({
   })
 
   const mutationCreateVehicle = useCreateVehicle()
-  const mutationAlter = useAlterVehicle()
-  const mutationAlterDriver = useAlterDriver()
+  const { mutateAsync: mutationAlter } = useAlterVehicle()
+  const { mutateAsync: mutationAlterDriver } = useAlterDriver()
   const { data: drivers } = useGetDrivers()
 
   const handleCreateVehicle = (data: VehicleTypes) => {
@@ -54,7 +44,7 @@ export function ModalFormVehicle({
       (item: DriverTypes) => item.bond === editVehicle?.row.plate
     )
     return filterDriver.map((obj: DriverTypes) =>
-      mutationAlterDriver.mutate({
+      mutationAlterDriver({
         ...obj,
         bond: data.plate
       })
@@ -66,7 +56,7 @@ export function ModalFormVehicle({
       ...data,
       id: editVehicle?.row.id
     }
-    mutationAlter.mutate(newData)
+    mutationAlter(newData)
     handleAlterBondDriver(data)
   }
 
